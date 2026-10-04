@@ -42,4 +42,11 @@ npm run db:push
 npm run db:seed
 ```
 
-`db:push` initializes the local SQLite schema from `prisma/init.sql`.
+`db:push` syncs the Prisma schema to MongoDB Atlas.
+
+For Vercel, set these Environment Variables in Project Settings:
+
+```text
+MONGODB_URI
+ADMIN_SESSION_SECRET
+```

@@ -5,6 +5,8 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [featuredProducts, bestSellers, categories, certificates, settings] = await Promise.all([
     prisma.product.findMany({

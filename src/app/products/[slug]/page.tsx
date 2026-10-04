@@ -9,6 +9,8 @@ import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
 import { discountPercent, formatPrice, parseImages } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductPage({ params }: PageProps<"/products/[slug]">) {
   const { slug } = await params;
   const product = await prisma.product.findUnique({

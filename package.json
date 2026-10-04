@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "db:push": "sqlite3 prisma/dev.db < prisma/init.sql",
+    "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "start": "next start",
     "lint": "eslint"

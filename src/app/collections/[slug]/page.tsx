@@ -4,6 +4,8 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function CollectionPage({ params }: PageProps<"/collections/[slug]">) {
   const { slug } = await params;
   const category = await prisma.category.findUnique({
@@ -33,4 +35,3 @@ export default async function CollectionPage({ params }: PageProps<"/collections
     </StoreShell>
   );
 }
-

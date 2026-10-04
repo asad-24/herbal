@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 model Category {
-  id          String    @id @default(cuid())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   slug        String    @unique
   description String
@@ -18,7 +18,7 @@ model Category {
 }
 
 model Product {
-  id           String      @id @default(cuid())
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   slug         String      @unique
   description  String
@@ -32,7 +32,7 @@ model Product {
   featured     Boolean     @default(false)
   bestSeller   Boolean     @default(false)
   status       String      @default("active")
-  categoryId   String
+  categoryId   String      @db.ObjectId
   category     Category    @relation(fields: [categoryId], references: [id])
   orderItems   OrderItem[]
   createdAt    DateTime    @default(now())
@@ -40,7 +40,7 @@ model Product {
 }
 
 model Order {
-  id            String      @id @default(cuid())
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
   customerName  String
   phone         String
   email         String?
@@ -56,17 +56,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   quantity  Int
   unitPrice Int
-  productId String
-  orderId   String
+  productId String  @db.ObjectId
+  orderId   String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order     Order   @relation(fields: [orderId], references: [id])
 }
 
 model Certificate {
-  id          String   @id @default(cuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   type        String
   description String
@@ -77,7 +77,7 @@ model Certificate {
 }
 
 model AdminUser {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   email        String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
@@ -85,7 +85,7 @@ model AdminUser {
 }
 
 model SiteSetting {
-  id             String   @id @default(cuid())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
   storeName      String
   phone          String
   whatsappNumber String
@@ -95,4 +95,3 @@ model SiteSetting {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
-

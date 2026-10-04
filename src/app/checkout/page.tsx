@@ -1,6 +1,8 @@
 import { CheckoutView } from "@/app/checkout/CheckoutView";
 import { StoreShell } from "@/components/StoreShell";
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutPage() {
   return (
     <StoreShell>
@@ -10,4 +12,3 @@ export default function CheckoutPage() {
     </StoreShell>
   );
 }
-

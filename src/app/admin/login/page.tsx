@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { setAdminSession } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 async function login(formData: FormData) {
   "use server";
 
@@ -46,4 +48,3 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/admin
     </main>
   );
 }
-

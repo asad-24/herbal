@@ -4,6 +4,8 @@ import { AdminShell } from "@/components/AdminShell";
 import { prisma } from "@/lib/db";
 import { formatPrice, parseImages } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 async function saveProduct(formData: FormData) {
   "use server";
   const id = String(formData.get("id") ?? "");

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { StoreShell } from "@/components/StoreShell";
 
+export const dynamic = "force-dynamic";
+
 export default async function OrderSuccessPage({ searchParams }: PageProps<"/order-success">) {
   const params = await searchParams;
   const order = typeof params.order === "string" ? params.order : "";
@@ -19,4 +21,3 @@ export default async function OrderSuccessPage({ searchParams }: PageProps<"/ord
     </StoreShell>
   );
 }
-

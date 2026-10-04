@@ -1,5 +1,7 @@
 import { StoreShell } from "@/components/StoreShell";
 
+export const dynamic = "force-dynamic";
+
 export function PolicyPage({ title, body }: { title: string; body: string }) {
   return (
     <StoreShell>
@@ -21,4 +23,3 @@ export default function ShippingPolicyPage() {
     />
   );
 }
-

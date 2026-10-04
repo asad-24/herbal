@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
 import { AdminTable } from "@/app/admin/products/page";
 
+export const dynamic = "force-dynamic";
+
 async function updateOrderStatus(formData: FormData) {
   "use server";
   await prisma.order.update({
@@ -62,4 +64,3 @@ export default async function AdminOrdersPage() {
     </AdminShell>
   );
 }
-

@@ -1,5 +1,7 @@
 import { PolicyPage } from "@/app/shipping-policy/page";
 
+export const dynamic = "force-dynamic";
+
 export default function RefundPolicyPage() {
   return (
     <PolicyPage
@@ -8,4 +10,3 @@ export default function RefundPolicyPage() {
     />
   );
 }
-

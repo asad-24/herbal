@@ -5,6 +5,8 @@ import { AdminShell } from "@/components/AdminShell";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const [products, categories, orders, certificates, latestOrders] = await Promise.all([
     prisma.product.count(),

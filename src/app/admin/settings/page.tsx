@@ -3,6 +3,8 @@ import { AdminShell } from "@/components/AdminShell";
 import { prisma } from "@/lib/db";
 import { AdminField } from "@/app/admin/products/page";
 
+export const dynamic = "force-dynamic";
+
 async function saveSettings(formData: FormData) {
   "use server";
   const id = String(formData.get("id") ?? "");
@@ -47,4 +49,3 @@ export default async function AdminSettingsPage() {
     </AdminShell>
   );
 }
-

@@ -3,6 +3,8 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q : "";
@@ -63,4 +65,3 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
     </StoreShell>
   );
 }
-

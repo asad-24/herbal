@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function ContactPage() {
   const settings = await prisma.siteSetting.findFirst();
 

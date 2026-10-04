@@ -3,6 +3,8 @@ import { AdminShell } from "@/components/AdminShell";
 import { prisma } from "@/lib/db";
 import { AdminField, AdminTable } from "@/app/admin/products/page";
 
+export const dynamic = "force-dynamic";
+
 async function saveCategory(formData: FormData) {
   "use server";
   const id = String(formData.get("id") ?? "");
@@ -68,4 +70,3 @@ export default async function AdminCategoriesPage({ searchParams }: PageProps<"/
     </AdminShell>
   );
 }
-

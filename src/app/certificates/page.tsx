@@ -2,6 +2,8 @@ import { ShieldCheck } from "lucide-react";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function CertificatesPage() {
   const certificates = await prisma.certificate.findMany({
     where: { published: true, type: "Certificate" },
@@ -36,4 +38,3 @@ export function DocumentGrid({ title, subtitle, items }: { title: string; subtit
     </section>
   );
 }
-

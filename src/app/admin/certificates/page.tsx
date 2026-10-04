@@ -3,6 +3,8 @@ import { AdminShell } from "@/components/AdminShell";
 import { prisma } from "@/lib/db";
 import { AdminField, AdminTable } from "@/app/admin/products/page";
 
+export const dynamic = "force-dynamic";
+
 async function saveCertificate(formData: FormData) {
   "use server";
   const id = String(formData.get("id") ?? "");
@@ -81,4 +83,3 @@ export default async function AdminCertificatesPage({ searchParams }: PageProps<
     </AdminShell>
   );
 }
-
