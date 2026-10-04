@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const COOKIE_NAME = "waheed_admin_session";
+export const ADMIN_COOKIE_NAME = "waheed_admin_session";
 
 function secret() {
   return process.env.ADMIN_SESSION_SECRET || "change-this-secret-before-production";
@@ -33,7 +33,7 @@ export function verifyAdminToken(token?: string) {
 
 export async function setAdminSession(adminId: string) {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, createAdminToken(adminId), {
+  cookieStore.set(ADMIN_COOKIE_NAME, createAdminToken(adminId), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -44,12 +44,12 @@ export async function setAdminSession(adminId: string) {
 
 export async function clearAdminSession() {
   const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+  cookieStore.delete(ADMIN_COOKIE_NAME);
 }
 
 export async function getAdminId() {
   const cookieStore = await cookies();
-  return verifyAdminToken(cookieStore.get(COOKIE_NAME)?.value);
+  return verifyAdminToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value);
 }
 
 export async function requireAdmin() {
@@ -57,4 +57,3 @@ export async function requireAdmin() {
   if (!adminId) redirect("/admin/login");
   return adminId;
 }
-
