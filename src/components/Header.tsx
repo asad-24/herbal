@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useCart } from "@/components/CartProvider";
 
 const nav = [
+  ["Home", "/"],
   ["Shop", "/shop"],
   ["Certificates", "/certificates"],
   ["Lab Reports", "/lab-reports"],
@@ -82,4 +83,3 @@ export function Header({ storeName }: { storeName: string }) {
     </header>
   );
 }
-
