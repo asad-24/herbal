@@ -1,12 +1,14 @@
 import { revalidatePath } from "next/cache";
+import { AdminField, AdminTable } from "@/components/AdminControls";
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
-import { AdminField, AdminTable } from "@/app/admin/products/page";
 
 export const dynamic = "force-dynamic";
 
 async function saveCertificate(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const data = {
     title: String(formData.get("title") ?? ""),
@@ -24,11 +26,13 @@ async function saveCertificate(formData: FormData) {
 
 async function deleteCertificate(formData: FormData) {
   "use server";
+  await requireAdmin();
   await prisma.certificate.delete({ where: { id: String(formData.get("id")) } });
   revalidatePath("/admin/certificates");
 }
 
 export default async function AdminCertificatesPage({ searchParams }: PageProps<"/admin/certificates">) {
+  await requireAdmin();
   const params = await searchParams;
   const editId = typeof params.edit === "string" ? params.edit : "";
   const [certificates, editCertificate] = await Promise.all([

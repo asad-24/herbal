@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { setAdminSession } from "@/lib/admin-auth";
-import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +9,8 @@ async function login(formData: FormData) {
 
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
-  const admin = await prisma.adminUser.findUnique({ where: { email } });
+  const { prisma } = await import("@/lib/db");
+  const admin = await prisma.adminUser.findUnique({ where: { email } }).catch(() => null);
 
   if (!admin || !(await bcrypt.compare(password, admin.passwordHash))) {
     redirect("/admin/login?error=1");
@@ -42,7 +42,11 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/admin
             <input name="password" type="password" required className="admin-input" defaultValue="Admin123!" />
           </label>
         </div>
-        {hasError ? <p className="mt-4 text-sm font-semibold text-red-700">Invalid login details.</p> : null}
+        {hasError ? (
+          <p className="mt-4 text-sm font-semibold text-red-700">
+            Invalid login details, or MongoDB is not reachable from Vercel yet.
+          </p>
+        ) : null}
         <button className="btn-primary mt-6 w-full">Sign in</button>
       </form>
     </main>

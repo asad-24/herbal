@@ -1,12 +1,14 @@
 import { revalidatePath } from "next/cache";
+import { AdminField } from "@/components/AdminControls";
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
-import { AdminField } from "@/app/admin/products/page";
 
 export const dynamic = "force-dynamic";
 
 async function saveSettings(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const data = {
     storeName: String(formData.get("storeName") ?? ""),
@@ -23,6 +25,7 @@ async function saveSettings(formData: FormData) {
 }
 
 export default async function AdminSettingsPage() {
+  await requireAdmin();
   const settings = await prisma.siteSetting.findFirst();
 
   return (

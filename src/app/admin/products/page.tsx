@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
-import type { ReactNode } from "react";
+import { AdminField, AdminTable } from "@/components/AdminControls";
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
 import { formatPrice, parseImages } from "@/lib/format";
 
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 async function saveProduct(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const categoryId = String(formData.get("categoryId") ?? "");
   const name = String(formData.get("name") ?? "");
@@ -43,11 +45,13 @@ async function saveProduct(formData: FormData) {
 
 async function deleteProduct(formData: FormData) {
   "use server";
+  await requireAdmin();
   await prisma.product.delete({ where: { id: String(formData.get("id")) } });
   revalidatePath("/admin/products");
 }
 
 export default async function AdminProductsPage({ searchParams }: PageProps<"/admin/products">) {
+  await requireAdmin();
   const params = await searchParams;
   const editId = typeof params.edit === "string" ? params.edit : "";
   const [products, categories, editProduct] = await Promise.all([
@@ -125,31 +129,5 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
         ))}
       </AdminTable>
     </AdminShell>
-  );
-}
-
-export function AdminField({ label, name, defaultValue = "", type = "text", required = false }: { label: string; name: string; defaultValue?: string | number | null; type?: string; required?: boolean }) {
-  return (
-    <label>
-      <span className="admin-label">{label}</span>
-      <input name={name} type={type} defaultValue={defaultValue ?? ""} required={required} className="admin-input" />
-    </label>
-  );
-}
-
-export function AdminTable({ headers, children }: { headers: string[]; children: ReactNode }) {
-  return (
-    <div className="mt-6 overflow-x-auto rounded-lg border border-stone-200 bg-white shadow-sm">
-      <table className="w-full min-w-[760px] text-left text-sm">
-        <thead className="bg-stone-100 text-xs uppercase tracking-wide text-stone-600">
-          <tr>
-            {headers.map((header) => (
-              <th key={header} className="p-3">{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{children}</tbody>
-      </table>
-    </div>
   );
 }

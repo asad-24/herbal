@@ -1,13 +1,15 @@
 import { revalidatePath } from "next/cache";
+import { AdminTable } from "@/components/AdminControls";
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
-import { AdminTable } from "@/app/admin/products/page";
 
 export const dynamic = "force-dynamic";
 
 async function updateOrderStatus(formData: FormData) {
   "use server";
+  await requireAdmin();
   await prisma.order.update({
     where: { id: String(formData.get("id")) },
     data: { status: String(formData.get("status")) },
@@ -16,6 +18,7 @@ async function updateOrderStatus(formData: FormData) {
 }
 
 export default async function AdminOrdersPage() {
+  await requireAdmin();
   const orders = await prisma.order.findMany({
     include: { items: { include: { product: true } } },
     orderBy: { createdAt: "desc" },

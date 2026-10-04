@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Package, ReceiptText, ShieldCheck, Tags } from "lucide-react";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
+  await requireAdmin();
   const [products, categories, orders, certificates, latestOrders] = await Promise.all([
     prisma.product.count(),
     prisma.category.count(),

@@ -1,12 +1,14 @@
 import { revalidatePath } from "next/cache";
+import { AdminField, AdminTable } from "@/components/AdminControls";
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
-import { AdminField, AdminTable } from "@/app/admin/products/page";
 
 export const dynamic = "force-dynamic";
 
 async function saveCategory(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const data = {
     name: String(formData.get("name") ?? ""),
@@ -21,11 +23,13 @@ async function saveCategory(formData: FormData) {
 
 async function deleteCategory(formData: FormData) {
   "use server";
+  await requireAdmin();
   await prisma.category.delete({ where: { id: String(formData.get("id")) } });
   revalidatePath("/admin/categories");
 }
 
 export default async function AdminCategoriesPage({ searchParams }: PageProps<"/admin/categories">) {
+  await requireAdmin();
   const params = await searchParams;
   const editId = typeof params.edit === "string" ? params.edit : "";
   const [categories, editCategory] = await Promise.all([
