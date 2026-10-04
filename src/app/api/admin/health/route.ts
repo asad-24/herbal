@@ -6,7 +6,12 @@ export const dynamic = "force-dynamic";
 function databaseNameFromUri(uri?: string) {
   if (!uri) return null;
   try {
-    const url = new URL(uri);
+    let normalizedUri = uri.trim();
+    if (normalizedUri.startsWith("MONGODB_URI=")) {
+      normalizedUri = normalizedUri.replace(/^MONGODB_URI=/, "").trim();
+    }
+    normalizedUri = normalizedUri.replace(/^['"]|['"]$/g, "");
+    const url = new URL(normalizedUri);
     return url.pathname.replace(/^\//, "") || null;
   } catch {
     return null;
@@ -15,6 +20,7 @@ function databaseNameFromUri(uri?: string) {
 
 export async function GET() {
   const hasMongoUri = Boolean(process.env.MONGODB_URI);
+  const mongoUriLooksValid = Boolean(process.env.MONGODB_URI?.trim().replace(/^MONGODB_URI=/, "").trim().replace(/^['"]|['"]$/g, "").startsWith("mongo"));
   const databaseName = databaseNameFromUri(process.env.MONGODB_URI);
 
   try {
@@ -29,6 +35,7 @@ export async function GET() {
     return NextResponse.json({
       ok: true,
       hasMongoUri,
+      mongoUriLooksValid,
       databaseName,
       adminCount,
       defaultAdminExists: Boolean(defaultAdmin),
@@ -40,6 +47,7 @@ export async function GET() {
       {
         ok: false,
         hasMongoUri,
+        mongoUriLooksValid,
         databaseName,
         error: error instanceof Error ? error.message : "Unknown database error",
       },
@@ -47,4 +55,3 @@ export async function GET() {
     );
   }
 }
-
