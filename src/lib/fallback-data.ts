@@ -1,5 +1,5 @@
 export const fallbackSettings = {
-  storeName: "Waheed Herbal Store",
+  storeName: "Herbal Shop",
   phone: "+92 300 0000000",
   whatsappNumber: "923000000000",
   address: "Karachi, Pakistan",
@@ -184,4 +184,3 @@ export const fallbackCertificates = [
     published: true,
   },
 ];
-

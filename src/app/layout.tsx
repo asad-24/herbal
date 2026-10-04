@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Waheed Herbal Store",
+  title: "Herbal Shop",
   description: "Herbal ecommerce store with COD ordering and WhatsApp support.",
 };
 

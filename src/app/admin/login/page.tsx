@@ -13,9 +13,6 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/admin
       >
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">Admin panel</p>
         <h1 className="mt-2 text-3xl font-black">Sign in</h1>
-        <p className="mt-3 text-sm leading-6 text-stone-600">
-          Seed login: admin@herbal.local / Admin123!
-        </p>
         <div className="mt-6 grid gap-4">
           <label>
             <span className="admin-label">Email</span>

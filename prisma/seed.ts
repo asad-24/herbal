@@ -199,7 +199,7 @@ async function main() {
 
   await prisma.siteSetting.create({
     data: {
-      storeName: "Waheed Herbal Store",
+      storeName: "Herbal Shop",
       phone: "+92 300 0000000",
       whatsappNumber: "923000000000",
       address: "Karachi, Pakistan",
@@ -226,4 +226,3 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
-
