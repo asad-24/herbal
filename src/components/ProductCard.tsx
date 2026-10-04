@@ -1,10 +1,22 @@
 import Link from "next/link";
-import type { Category, Product } from "@prisma/client";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductImage } from "@/components/ProductImage";
 import { discountPercent, formatPrice, parseImages } from "@/lib/format";
 
-type ProductWithCategory = Product & { category: Category };
+export type ProductWithCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  regularPrice: number;
+  salePrice: number | null;
+  stock: number;
+  images: string;
+  category: {
+    name: string;
+    slug: string;
+  };
+};
 
 export function ProductCard({ product }: { product: ProductWithCategory }) {
   const image = parseImages(product.images)[0] || "";
@@ -64,4 +76,3 @@ export function ProductCard({ product }: { product: ProductWithCategory }) {
     </article>
   );
 }
-

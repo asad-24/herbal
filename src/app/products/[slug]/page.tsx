@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductImage } from "@/components/ProductImage";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
+import { fallbackProducts, fallbackSettings } from "@/lib/fallback-data";
 import { discountPercent, formatPrice, parseImages } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
   const product = await prisma.product.findUnique({
     where: { slug },
     include: { category: true },
-  });
+  }).catch(() => fallbackProducts.find((item) => item.slug === slug) ?? null);
 
   if (!product || product.status !== "active") notFound();
 
@@ -28,12 +29,16 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
     },
     include: { category: true },
     take: 4,
-  });
+  }).catch(() =>
+    fallbackProducts
+      .filter((item) => item.categoryId === product.categoryId && item.id !== product.id)
+      .slice(0, 4),
+  );
 
   const image = parseImages(product.images)[0] || "";
   const price = product.salePrice ?? product.regularPrice;
   const discount = discountPercent(product.regularPrice, product.salePrice);
-  const settings = await prisma.siteSetting.findFirst();
+  const settings = await prisma.siteSetting.findFirst().catch(() => fallbackSettings);
   const trustItems: { Icon: LucideIcon; text: string }[] = [
     { Icon: CheckCircle2, text: `${product.stock} in stock` },
     { Icon: Truck, text: "COD available" },

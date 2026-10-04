@@ -2,11 +2,12 @@ import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import type { ReactNode } from "react";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
+import { fallbackSettings } from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function ContactPage() {
-  const settings = await prisma.siteSetting.findFirst();
+  const settings = await prisma.siteSetting.findFirst().catch(() => fallbackSettings);
 
   return (
     <StoreShell>

@@ -2,6 +2,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
+import { fallbackProducts } from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,20 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
         : sort === "price-desc"
           ? { regularPrice: "desc" }
           : { createdAt: "desc" },
+  }).catch(() => {
+    const searched = query
+      ? fallbackProducts.filter((product) =>
+          `${product.name} ${product.description} ${product.benefits}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+        )
+      : fallbackProducts;
+    const filtered = filter === "best" ? searched.filter((product) => product.bestSeller) : searched;
+    return filtered.toSorted((a, b) => {
+      if (sort === "price-asc") return (a.salePrice ?? a.regularPrice) - (b.salePrice ?? b.regularPrice);
+      if (sort === "price-desc") return (b.salePrice ?? b.regularPrice) - (a.salePrice ?? a.regularPrice);
+      return 0;
+    });
   });
 
   return (

@@ -4,11 +4,17 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
+import {
+  fallbackCategories,
+  fallbackCertificates,
+  fallbackProducts,
+  fallbackSettings,
+} from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [featuredProducts, bestSellers, categories, certificates, settings] = await Promise.all([
+  const data = await Promise.all([
     prisma.product.findMany({
       where: { status: "active", featured: true },
       include: { category: true },
@@ -22,7 +28,13 @@ export default async function Home() {
     prisma.category.findMany({ include: { _count: { select: { products: true } } } }),
     prisma.certificate.findMany({ where: { published: true }, take: 3 }),
     prisma.siteSetting.findFirst(),
-  ]);
+  ]).catch(() => null);
+
+  const featuredProducts = data?.[0]?.length ? data[0] : fallbackProducts.filter((product) => product.featured).slice(0, 4);
+  const bestSellers = data?.[1]?.length ? data[1] : fallbackProducts.filter((product) => product.bestSeller).slice(0, 4);
+  const categories = data?.[2]?.length ? data[2] : fallbackCategories;
+  const certificates = data?.[3]?.length ? data[3] : fallbackCertificates;
+  const settings = data?.[4] ?? fallbackSettings;
 
   return (
     <StoreShell>

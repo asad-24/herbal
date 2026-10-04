@@ -1,6 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
+import { fallbackCertificates } from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ export default async function CertificatesPage() {
   const certificates = await prisma.certificate.findMany({
     where: { published: true, type: "Certificate" },
     orderBy: { createdAt: "desc" },
-  });
+  }).catch(() => fallbackCertificates.filter((item) => item.type === "Certificate"));
 
   return (
     <StoreShell>

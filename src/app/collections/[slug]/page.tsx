@@ -3,6 +3,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StoreShell } from "@/components/StoreShell";
 import { prisma } from "@/lib/db";
+import { fallbackCategories, fallbackProducts } from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,13 @@ export default async function CollectionPage({ params }: PageProps<"/collections
         orderBy: { createdAt: "desc" },
       },
     },
+  }).catch(() => {
+    const fallbackCategory = fallbackCategories.find((item) => item.slug === slug);
+    if (!fallbackCategory) return null;
+    return {
+      ...fallbackCategory,
+      products: fallbackProducts.filter((product) => product.category.slug === slug),
+    };
   });
 
   if (!category) notFound();
