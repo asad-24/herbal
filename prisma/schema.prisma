@@ -39,6 +39,13 @@ model Product {
   updatedAt    DateTime    @updatedAt
 }
 
+model ProductImageAsset {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  contentType String
+  data        Bytes
+  createdAt   DateTime @default(now())
+}
+
 model Order {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   customerName  String

@@ -1,3 +1,5 @@
+import { isPhotoSource } from "@/lib/product-images";
+
 export function ProductImage({
   image,
   name,
@@ -7,6 +9,15 @@ export function ProductImage({
   name: string;
   className?: string;
 }) {
+  if (isPhotoSource(image)) {
+    return (
+      <div className={`relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md bg-stone-50 ${className}`}>
+        {/* Native images also support external URLs without a Next.js host allowlist. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt={name} className="absolute inset-0 h-full w-full object-contain" />
+      </div>
+    );
+  }
   return (
     <div
       className={`relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md ${className}`}
@@ -22,4 +33,3 @@ export function ProductImage({
     </div>
   );
 }
-

@@ -1,13 +1,17 @@
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { AdminField, AdminTable } from "@/components/AdminControls";
+import { AdminProductForm, type ProductFormState } from "@/components/AdminProductForm";
+import { ProductImageUpload } from "@/components/ProductImageUpload";
 import { AdminShell } from "@/components/AdminShell";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/db";
 import { formatPrice, parseImages } from "@/lib/format";
+import { DEFAULT_PRODUCT_IMAGE, matchesImageType, validateProductImage } from "@/lib/product-images";
 
 export const dynamic = "force-dynamic";
 
-async function saveProduct(formData: FormData) {
+async function saveProduct(_state: ProductFormState, formData: FormData): Promise<ProductFormState> {
   "use server";
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
@@ -16,31 +20,69 @@ async function saveProduct(formData: FormData) {
   const slug = String(formData.get("slug") ?? "");
   const regularPrice = Number(formData.get("regularPrice") ?? 0);
   const salePriceValue = String(formData.get("salePrice") ?? "");
-  const data = {
-    name,
-    slug,
-    categoryId,
-    description: String(formData.get("description") ?? ""),
-    benefits: String(formData.get("benefits") ?? ""),
-    usage: String(formData.get("usage") ?? ""),
-    packing: String(formData.get("packing") ?? ""),
-    regularPrice,
-    salePrice: salePriceValue ? Number(salePriceValue) : null,
-    stock: Number(formData.get("stock") ?? 0),
-    images: JSON.stringify([String(formData.get("image") ?? "linear-gradient(135deg,#f2f7e9,#cde0b8,#708c55)")]),
-    featured: formData.get("featured") === "on",
-    bestSeller: formData.get("bestSeller") === "on",
-    status: String(formData.get("status") ?? "active"),
-  };
+  const imageFile = formData.get("imageFile");
+  let image = String(formData.get("image") ?? "").trim();
+  let uploadedImageId: string | undefined;
+  let savedId: string;
 
-  if (id) {
-    await prisma.product.update({ where: { id }, data });
-  } else {
-    await prisma.product.create({ data });
+  // Validate before saving anything. File extensions and browser MIME types alone
+  // are not enough to identify an uploaded image.
+  let imageBytes: Uint8Array<ArrayBuffer> | undefined;
+  // Empty native file inputs may arrive with a synthesized filename after
+  // multipart serialization, so identify that placeholder by size and type.
+  if (imageFile instanceof File && (imageFile.size > 0 || imageFile.type !== "application/octet-stream")) {
+    const error = validateProductImage(imageFile);
+    if (error) return { error };
+    imageBytes = new Uint8Array(await imageFile.arrayBuffer());
+    if (!matchesImageType(imageBytes, imageFile.type)) {
+      return { error: "This file is not a valid JPG, PNG, WebP, or GIF image. Please choose another photo." };
+    }
+  } else if (image && !/^(https?:\/\/|\/(?!\/)|(?:linear|radial|conic)-gradient\()/i.test(image)) {
+    return { error: "Use Browse images to select a photo from your computer, or enter an image web URL." };
+  }
+
+  try {
+    if (imageBytes && imageFile instanceof File) {
+      const asset = await prisma.productImageAsset.create({
+        data: { contentType: imageFile.type, data: imageBytes },
+        select: { id: true },
+      });
+      uploadedImageId = asset.id;
+      image = `/api/product-images/${asset.id}`;
+    }
+    const data = {
+      name,
+      slug,
+      categoryId,
+      description: String(formData.get("description") ?? ""),
+      benefits: String(formData.get("benefits") ?? ""),
+      usage: String(formData.get("usage") ?? ""),
+      packing: String(formData.get("packing") ?? ""),
+      regularPrice,
+      salePrice: salePriceValue ? Number(salePriceValue) : null,
+      stock: Number(formData.get("stock") ?? 0),
+      images: JSON.stringify([image || DEFAULT_PRODUCT_IMAGE]),
+      featured: formData.get("featured") === "on",
+      bestSeller: formData.get("bestSeller") === "on",
+      status: String(formData.get("status") ?? "active"),
+    };
+
+    const saved = id
+      ? await prisma.product.update({ where: { id }, data, select: { id: true } })
+      : await prisma.product.create({ data, select: { id: true } });
+    savedId = saved.id;
+  } catch (error) {
+    if (uploadedImageId) {
+      await prisma.productImageAsset.delete({ where: { id: uploadedImageId } }).catch(() => {});
+    }
+    console.error("Failed to save product", error);
+    return { error: "Could not save the product. Check that the slug is unique and try again. Your entries and selected photo are still here." };
   }
   revalidatePath("/admin/products");
   revalidatePath("/");
   revalidatePath("/shop");
+  revalidatePath("/products/[slug]", "page");
+  redirect(`/admin/products?edit=${savedId}&saved=1`);
 }
 
 async function deleteProduct(formData: FormData) {
@@ -63,7 +105,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
   return (
     <AdminShell>
       <h1 className="text-3xl font-black">Products</h1>
-      <form action={saveProduct} className="mt-6 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+      <AdminProductForm key={editProduct?.id ?? "new"} action={saveProduct} editing={!!editProduct} saved={params.saved === "1"}>
         <h2 className="text-xl font-black">{editProduct ? "Edit product" : "Add product"}</h2>
         <input type="hidden" name="id" value={editProduct?.id ?? ""} />
         <div className="mt-5 grid gap-4 md:grid-cols-3">
@@ -81,7 +123,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
           <AdminField label="Sale price" name="salePrice" type="number" defaultValue={editProduct?.salePrice ?? ""} />
           <AdminField label="Stock" name="stock" type="number" defaultValue={editProduct?.stock ?? 0} required />
           <AdminField label="Packing" name="packing" defaultValue={editProduct?.packing} required />
-          <AdminField label="Image CSS gradient / URL" name="image" defaultValue={editProduct ? parseImages(editProduct.images)[0] : ""} />
+          <ProductImageUpload key={editProduct?.images ?? "new"} initialImage={editProduct ? parseImages(editProduct.images)[0] : ""} />
           <label>
             <span className="admin-label">Status</span>
             <select name="status" defaultValue={editProduct?.status ?? "active"} className="admin-input">
@@ -106,8 +148,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
             <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="bestSeller" defaultChecked={editProduct?.bestSeller} /> Best seller</label>
           </div>
         </div>
-        <button className="btn-primary mt-5">{editProduct ? "Save product" : "Create product"}</button>
-      </form>
+      </AdminProductForm>
       <AdminTable headers={["Product", "Category", "Price", "Stock", "Status", "Actions"]}>
         {products.map((product) => (
           <tr key={product.id} className="border-t border-stone-200">

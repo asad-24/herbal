@@ -9,6 +9,7 @@ Next.js herbal ecommerce storefront with a local SQLite database, Cash on Delive
 - COD checkout saved through Prisma Client.
 - WhatsApp order summary link after checkout.
 - Admin login, dashboard, products, categories, orders, certificates, and store settings.
+- Product photos via Browse or drag and drop, with previews and JPG, PNG, WebP, or GIF validation (up to 3 MB). Photos are stored in MongoDB and served through `/api/product-images/[id]`, including on serverless hosts.
 
 ## Setup
 
